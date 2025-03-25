@@ -1,0 +1,16 @@
+{
+  "name": "geo-ip-lp",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "Geo IP detection for landing pages",
+  "devDependencies": {
+    "wrangler": "^4.4.0"
+  }
+}
