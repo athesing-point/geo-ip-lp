@@ -1,5 +1,5 @@
 (() => {
-  const WORKER_URL = "https://geo-ip-detector.your-worker.workers.dev"; // Update this with your worker URL
+  const WORKER_URL = "https://geo-ip-detector.ops-1df.workers.dev/"; // Update this with your worker URL
   const HEADLINE_SELECTOR = "h1"; // Update this if you want to target a specific h1 with an ID or class
 
   async function updateHeadline() {
