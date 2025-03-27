@@ -57,8 +57,12 @@ function generateHeadline(state) {
   return `Get up to $500k from your <br><span class="headline-underline-decoration">home equity</span> in ${state.name}.`;
 }
 
-function generateStateAvgHeadline(state) {
-  return `Homeowners in ${state.name} love getting $${state.avgAmount.toLocaleString()} cash from Point's Home Equity Investment.`;
+function generateStateSocialProofHeadline(state) {
+  return `Homeowners in ${state.name} love getting cash from Point's Home Equity Investment.`;
+}
+
+function addStateAvgFootnote(state) {
+  return `Qualified homeowners in ${state.name} get an average of  $${state.avgAmount.toLocaleString()} from Point's Home Equity Investment`;
 }
 
 // Generate headlines for all states
@@ -69,7 +73,12 @@ const STATE_HEADLINES = US_STATES.reduce((acc, state) => {
 
 // Generate avg homeowner headlines for all states
 const STATE_AVG_HEADLINES = US_STATES.reduce((acc, state) => {
-  acc[state.name] = generateStateAvgHeadline(state);
+  acc[state.name] = generateStateSocialProofHeadline(state);
+  return acc;
+}, {});
+
+const STATE_AVG_FOOTNOTES = US_STATES.reduce((acc, state) => {
+  acc[state.name] = addStateAvgFootnote(state);
   return acc;
 }, {});
 
@@ -101,6 +110,7 @@ export default {
       // Only return a headline if it's a US state
       headline: cf?.country === "US" && cf?.region ? STATE_HEADLINES[cf.region] || null : null,
       avgHeadline: cf?.country === "US" && cf?.region ? STATE_AVG_HEADLINES[cf.region] || null : null,
+      footnote: cf?.country === "US" && cf?.region ? STATE_AVG_FOOTNOTES[cf.region] || null : null,
       country: cf?.country || "Unknown",
       region: cf?.region || "Unknown",
       city: cf?.city || "Unknown",

@@ -2,7 +2,9 @@
   document.addEventListener("DOMContentLoaded", () => {
     const WORKER_URL = "https://geo-ip-detector.ops-1df.workers.dev/"; // Update this with your worker URL
     const HEADLINE_SELECTOR = "h1"; // Update this if you want to target a specific h1 with an ID or class
-    const AVG_HOMEOWNER_SELECTOR = "#avg-homeowner"; // Selector for the avg-homeowner element
+    const SOCIAL_PROOF_HEADLINE_SELECTOR = "#avg-homeowner"; // Selector for the avg-homeowner element
+    const AVG_HOMEOWNER_FOOTNOTE_SELECTOR = "#footnote-rtf"; // Selector for the footnote-rtf element to update with avg amount details.
+    const AVG_HOMEOWNER_SELECTOR = "#avg-homeowner"; // Added AVG_HOMEOWNER_SELECTOR
 
     async function updateHeadline() {
       try {
@@ -40,6 +42,34 @@
             console.log("Updated avg-homeowner with:", data.avgHeadline);
           } else {
             console.warn("No element found with selector:", AVG_HOMEOWNER_SELECTOR);
+          }
+        }
+
+        // Update footnote element if available
+        if (data.footnote) {
+          const footnoteElement = document.querySelector(AVG_HOMEOWNER_FOOTNOTE_SELECTOR);
+          if (footnoteElement) {
+            const orderedList = footnoteElement.querySelector("ol");
+            if (orderedList) {
+              // Store the existing legal text content
+              const existingLegalText = orderedList.querySelector("li").textContent;
+
+              // Clear and recreate the list
+              orderedList.innerHTML = "";
+              orderedList.setAttribute("start", "1");
+              orderedList.setAttribute("role", "list");
+
+              // Create single list item containing both pieces of text
+              const listItem = document.createElement("li");
+              listItem.innerHTML = `${data.footnote}.<br><br>${existingLegalText}`;
+              orderedList.appendChild(listItem);
+
+              console.log("Updated footnote under single number");
+            } else {
+              console.warn("No ordered list found in footnote element");
+            }
+          } else {
+            console.warn("No element found with selector:", AVG_HOMEOWNER_FOOTNOTE_SELECTOR);
           }
         }
       } catch (error) {

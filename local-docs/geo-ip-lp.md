@@ -69,9 +69,9 @@ This repository provides a simple geo-detection system. It uses Cloudflare Worke
 
 - **`US_STATES` Array:** Defines US states and their corresponding average amounts. Customize this array to modify headlines and data for each state.
 - **`generateHeadline(state)` Function:** Template for generating the main headline. Edit this function to change the headline structure.
-- **`generateStateAvgHeadline(state)` Function:** Template for generating the average homeowner headline. Edit this function to change the average headline structure.
+- **`generateStateSocialProofHeadline(state)` Function:** Template for generating the social proof headline. Edit this function to change the social proof headline structure.
 - **`STATE_HEADLINES` Constant:** Generated headlines for each state based on `generateHeadline`.
-- **`STATE_AVG_HEADLINES` Constant:** Generated average homeowner headlines for each state based on `generateStateAvgHeadline`.
+- **`STATE_AVG_HEADLINES` Constant:** Generated social proof headlines for each state based on `generateStateSocialProofHeadline`.
 - **`fetch(request)` Function:**
   - Handles incoming requests to the worker.
   - Detects visitor location using Cloudflare's `request.cf` object.
@@ -110,7 +110,7 @@ This repository provides a simple geo-detection system. It uses Cloudflare Worke
 
 ## Customization
 
-- **Headlines:** Modify the `generateHeadline` and `generateStateAvgHeadline` functions in `worker.js` to customize the generated headlines.
+- **Headlines:** Modify the `generateHeadline` and `generateStateSocialProofHeadline` functions in `worker.js` to customize the generated headlines.
 - **Target Elements:** Change `HEADLINE_SELECTOR`, `AVG_HOMEOWNER_SELECTOR` in `client.js` to target different HTML elements on your landing page.
 - **State Data:** Update the `US_STATES` array in `worker.js` to adjust average amounts or add/modify states.
 - **Extend Worker Logic:** Expand the `fetch` function in `worker.js` to include more complex logic or data processing based on location information.
