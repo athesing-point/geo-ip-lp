@@ -54,7 +54,7 @@ const US_STATES = [
 
 // Template function for headlines
 function generateHeadline(state) {
-  return `Get up to $500k<br>from your <span class="headline-underline-decoration">home equity</span> in ${state}.`;
+  return `Get up to $500k from your <br><span class="headline-underline-decoration">home equity</span> in ${state}.`;
 }
 
 // Generate headlines for all states
