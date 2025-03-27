@@ -57,9 +57,19 @@ function generateHeadline(state) {
   return `Get up to $500k from your <br><span class="headline-underline-decoration">home equity</span> in ${state}.`;
 }
 
+function generateStateAvgHeadline(state) {
+  return `Homeowners in ${state} love getting cash from Point's Home Equity Investment.`;
+}
+
 // Generate headlines for all states
 const STATE_HEADLINES = US_STATES.reduce((acc, state) => {
   acc[state] = generateHeadline(state);
+  return acc;
+}, {});
+
+// Generate avg homeowner headlines for all states
+const STATE_AVG_HEADLINES = US_STATES.reduce((acc, state) => {
+  acc[state] = generateStateAvgHeadline(state);
   return acc;
 }, {});
 
@@ -90,6 +100,7 @@ export default {
     const response = {
       // Only return a headline if it's a US state
       headline: cf?.country === "US" && cf?.region ? STATE_HEADLINES[cf.region] || null : null,
+      avgHeadline: cf?.country === "US" && cf?.region ? STATE_AVG_HEADLINES[cf.region] || null : null,
       country: cf?.country || "Unknown",
       region: cf?.region || "Unknown",
       city: cf?.city || "Unknown",

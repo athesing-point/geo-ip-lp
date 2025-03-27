@@ -2,6 +2,7 @@
   document.addEventListener("DOMContentLoaded", () => {
     const WORKER_URL = "https://geo-ip-detector.ops-1df.workers.dev/"; // Update this with your worker URL
     const HEADLINE_SELECTOR = "h1"; // Update this if you want to target a specific h1 with an ID or class
+    const AVG_HOMEOWNER_SELECTOR = "#avg-homeowner"; // Selector for the avg-homeowner element
 
     async function updateHeadline() {
       try {
@@ -29,6 +30,17 @@
             stateAbbr: data.stateAbbr,
             hasHeadline: !!data.headline,
           });
+        }
+
+        // Update avg-homeowner element if available
+        if (data.avgHeadline) {
+          const avgHomeowner = document.querySelector(AVG_HOMEOWNER_SELECTOR);
+          if (avgHomeowner) {
+            avgHomeowner.innerHTML = data.avgHeadline;
+            console.log("Updated avg-homeowner with:", data.avgHeadline);
+          } else {
+            console.warn("No element found with selector:", AVG_HOMEOWNER_SELECTOR);
+          }
         }
       } catch (error) {
         console.error("Error fetching geo data:", error);
