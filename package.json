@@ -11,7 +11,7 @@
   "license": "ISC",
   "description": "Geo IP detection for landing pages",
   "devDependencies": {
-    "wrangler": "^4.4.0",
-    "cursor-tools": "latest"
+    "cursor-tools": "latest",
+    "wrangler": "^4.7.1"
   }
 }
