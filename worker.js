@@ -34,7 +34,7 @@ function generateHeadline(state) {
 }
 
 function generateStateSocialProofHeadline(state) {
-  return `Homeowners in ${state.name} love getting cash from Point's Home Equity Investment.`;
+  return `Qualified homeowners in ${state.name} get an average of $${state.avgAmount.toLocaleString()} from Point's Home Equity Investment`;
 }
 
 function addStateAvgFootnote(state) {
@@ -76,11 +76,11 @@ export default {
     const cf = request.cf;
 
     // Debug logging
-    console.log("Debug info:", {
-      originalRegion: cf?.region,
-      hasStateHeadline: cf?.region ? !!STATE_HEADLINES[cf.region] : false,
-      country: cf?.country,
-    });
+    // console.log("Debug info:", {
+    //   originalRegion: cf?.region,
+    //   hasStateHeadline: cf?.region ? !!STATE_HEADLINES[cf.region] : false,
+    //   country: cf?.country,
+    // });
 
     const response = {
       // Only return a headline if it's a US state

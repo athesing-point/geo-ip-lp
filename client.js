@@ -12,36 +12,36 @@
         if (!response.ok) throw new Error("Network response was not ok");
 
         const data = await response.json();
-        console.log("Geo data received:", data); // Add logging for debugging
-        console.log("Debug info:", data.debug); // Log the debug information
+        // console.log("Geo data received:", data); // Add logging for debugging
+        // console.log("Debug info:", data.debug); // Log the debug information
 
         // Only update if we have a US state headline
         if (data.headline) {
           const headlines = document.querySelectorAll(HEADLINE_SELECTOR);
-          console.log("Found headlines:", headlines.length); // Log number of headlines found
+          // console.log("Found headlines:", headlines.length); // Log number of headlines found
           if (headlines.length > 0) {
             headlines[0].innerHTML = data.headline; // Use innerHTML since we're receiving HTML content
-            console.log("Updated headline with:", data.headline); // Log the headline content
+            // console.log("Updated headline with:", data.headline); // Log the headline content
           } else {
-            console.warn("No headlines found with selector:", HEADLINE_SELECTOR);
+            // console.warn("No headlines found with selector:", HEADLINE_SELECTOR);
           }
         } else {
-          console.log("No headline available for this location. Debug info:", {
-            country: data.country,
-            region: data.region,
-            stateAbbr: data.stateAbbr,
-            hasHeadline: !!data.headline,
-          });
+          // console.log("No headline available for this location. Debug info:", {
+          //   country: data.country,
+          //   region: data.region,
+          //   stateAbbr: data.stateAbbr,
+          //   hasHeadline: !!data.headline,
+          // });
         }
 
         // Update avg-homeowner element if available
         if (data.avgHeadline) {
           const avgHomeowner = document.querySelector(AVG_HOMEOWNER_SELECTOR);
           if (avgHomeowner) {
-            avgHomeowner.innerHTML = data.avgHeadline;
-            console.log("Updated avg-homeowner with:", data.avgHeadline);
+            avgHomeowner.outerHTML = `<h1 id="avg-homeowner" class="heading-medium text-wrap-balance">${data.avgHeadline}<sup class="headline-superscript">1</sup></h1>`;
+            // console.log("Updated avg-homeowner with:", data.avgHeadline);
           } else {
-            console.warn("No element found with selector:", AVG_HOMEOWNER_SELECTOR);
+            // console.warn("No element found with selector:", AVG_HOMEOWNER_SELECTOR);
           }
         }
 
@@ -64,16 +64,16 @@
               listItem.innerHTML = `${data.footnote}.<br><br>${existingLegalText}`;
               orderedList.appendChild(listItem);
 
-              console.log("Updated footnote under single number");
+              // console.log("Updated footnote under single number");
             } else {
-              console.warn("No ordered list found in footnote element");
+              // console.warn("No ordered list found in footnote element");
             }
           } else {
-            console.warn("No element found with selector:", AVG_HOMEOWNER_FOOTNOTE_SELECTOR);
+            // console.warn("No element found with selector:", AVG_HOMEOWNER_FOOTNOTE_SELECTOR);
           }
         }
       } catch (error) {
-        console.error("Error fetching geo data:", error);
+        // console.error("Error fetching geo data:", error);
       }
     }
 
