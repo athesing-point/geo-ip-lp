@@ -67,30 +67,132 @@ function getStateContent(region) {
 }
 
 export default {
-  async fetch(request) {
+  async fetch(request, env, ctx) {
+    const startTime = Date.now();
+    const requestId = crypto.randomUUID();
+    
     // Handle CORS preflight
     if (request.method === "OPTIONS") {
       return new Response(null, {
         headers: {
           "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, OPTIONS",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type",
           "Access-Control-Max-Age": "86400",
         },
       });
     }
 
+    // Handle error reporting endpoint
+    if (request.url.includes("/log-error") && request.method === "POST") {
+      try {
+        const errorData = await request.json();
+        console.error(`[CLIENT_ERROR] ${requestId}`, {
+          timestamp: new Date().toISOString(),
+          requestId,
+          error: errorData.error,
+          stack: errorData.stack,
+          userAgent: request.headers.get("user-agent"),
+          url: errorData.url,
+          geo: {
+            country: request.cf?.country,
+            region: request.cf?.region,
+            city: request.cf?.city,
+          },
+        });
+        
+        return new Response(JSON.stringify({ success: true }), {
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
+      } catch (e) {
+        console.error(`[ERROR_ENDPOINT_FAIL] ${requestId}`, e);
+        return new Response(JSON.stringify({ success: false }), {
+          status: 500,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
+      }
+    }
+
+    // Handle client logging endpoint
+    if (request.url.includes("/log") && request.method === "POST") {
+      try {
+        const logData = await request.json();
+        const logLevel = logData.level || "info";
+        const logType = `[CLIENT_${logLevel.toUpperCase()}]`;
+        
+        console.log(`${logType} ${requestId}`, {
+          timestamp: new Date().toISOString(),
+          requestId,
+          message: logData.message,
+          data: logData.data,
+          userAgent: request.headers.get("user-agent"),
+          url: logData.url,
+          geo: {
+            country: request.cf?.country,
+            region: request.cf?.region,
+            city: request.cf?.city,
+          },
+        });
+        
+        return new Response(JSON.stringify({ success: true }), {
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
+      } catch (e) {
+        console.error(`[LOG_ENDPOINT_FAIL] ${requestId}`, e);
+        return new Response(JSON.stringify({ success: false }), {
+          status: 500,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
+      }
+    }
+
     // Get geo information from the request
     const cf = request.cf;
-
-    // Debug logging
-    // console.log("Debug info:", {
-    //   originalRegion: cf?.region,
-    //   hasStateHeadline: cf?.region ? !!STATE_HEADLINES[cf.region] : false,
-    //   country: cf?.country,
-    // });
+    
+    // Log incoming request details
+    console.log(`[REQUEST] ${requestId}`, {
+      timestamp: new Date().toISOString(),
+      requestId,
+      method: request.method,
+      url: request.url,
+      userAgent: request.headers.get("user-agent"),
+      referer: request.headers.get("referer"),
+      ip: request.headers.get("cf-connecting-ip"),
+      country: cf?.country,
+      region: cf?.region,
+      city: cf?.city,
+      postalCode: cf?.postalCode,
+      timezone: cf?.timezone,
+      continent: cf?.continent,
+      asn: cf?.asn,
+      colo: cf?.colo,
+    });
 
     const stateContent = cf?.country === "US" ? getStateContent(cf?.region) : null;
+
+    // Log state matching results
+    console.log(`[STATE_MATCH] ${requestId}`, {
+      timestamp: new Date().toISOString(),
+      requestId,
+      country: cf?.country,
+      originalRegion: cf?.region,
+      matchedState: stateContent?.name ?? "None",
+      matchedCode: stateContent?.code ?? "None",
+      hasCustomContent: !!stateContent,
+      processingTimeMs: Date.now() - startTime,
+    });
 
     const response = {
       headline: stateContent?.headline ?? null,
@@ -108,11 +210,23 @@ export default {
       },
     };
 
+    // Log response details
+    console.log(`[RESPONSE] ${requestId}`, {
+      timestamp: new Date().toISOString(),
+      requestId,
+      hasHeadline: !!response.headline,
+      hasAvgHeadline: !!response.avgHeadline,
+      hasFootnote: !!response.footnote,
+      stateServed: response.stateName ?? "Default",
+      totalTimeMs: Date.now() - startTime,
+    });
+
     return new Response(JSON.stringify(response), {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
         "Cache-Control": "max-age=3600",
+        "X-Request-Id": requestId,
       },
     });
   },

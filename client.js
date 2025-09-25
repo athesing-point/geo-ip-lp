@@ -6,32 +6,97 @@
     const AVG_HOMEOWNER_FOOTNOTE_SELECTOR = "#footnote-rtf"; // Selector for the footnote-rtf element to update with avg amount details.
     const AVG_HOMEOWNER_SELECTOR = "#avg-homeowner"; // Added AVG_HOMEOWNER_SELECTOR
 
-    async function updateHeadline() {
+    // Function to send logs to worker
+    async function serverLog(level, message, data = {}) {
       try {
+        await fetch(`${WORKER_URL}log`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            level: level,
+            message: message,
+            data: data,
+            url: window.location.href,
+            timestamp: new Date().toISOString(),
+          }),
+        });
+      } catch (err) {
+        // Silently fail - don't expose logging errors to console
+      }
+    }
+
+    // Function to report errors to worker
+    async function reportError(error, context) {
+      try {
+        await fetch(`${WORKER_URL}log-error`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            error: error.message || String(error),
+            stack: error.stack || "No stack trace available",
+            context: context,
+            url: window.location.href,
+            timestamp: new Date().toISOString(),
+          }),
+        });
+      } catch (reportErr) {
+        // Silently fail - don't expose error reporting failures
+      }
+    }
+
+    async function updateHeadline() {
+      const startTime = performance.now();
+      
+      try {
+        await serverLog("info", "Fetching geo data from worker");
         const response = await fetch(WORKER_URL);
-        if (!response.ok) throw new Error("Network response was not ok");
+        
+        if (!response.ok) {
+          const error = new Error(`Network response was not ok: ${response.status}`);
+          await serverLog("error", "Fetch failed", { status: response.status });
+          await reportError(error, "fetch_failed");
+          throw error;
+        }
 
         const data = await response.json();
-        // console.log("Geo data received:", data); // Add logging for debugging
-        // console.log("Debug info:", data.debug); // Log the debug information
+        const fetchTime = performance.now() - startTime;
+        
+        await serverLog("info", "Geo data received", {
+          ...data,
+          fetchTimeMs: fetchTime.toFixed(2),
+          requestId: response.headers.get("X-Request-Id"),
+          debug: data.debug,
+        });
+
+        let elementsUpdated = [];
 
         // Only update if we have a US state headline
         if (data.headline) {
           const headlines = document.querySelectorAll(HEADLINE_SELECTOR);
-          // console.log("Found headlines:", headlines.length); // Log number of headlines found
+          await serverLog("info", `Found ${headlines.length} headline elements`);
+          
           if (headlines.length > 0) {
             headlines[0].innerHTML = data.headline; // Use innerHTML since we're receiving HTML content
-            // console.log("Updated headline with:", data.headline); // Log the headline content
+            await serverLog("info", "Updated headline with state-specific content");
+            elementsUpdated.push("headline");
           } else {
-            // console.warn("No headlines found with selector:", HEADLINE_SELECTOR);
+            await serverLog("warn", "No headlines found", { selector: HEADLINE_SELECTOR });
+            await reportError(
+              new Error("No headline elements found"),
+              { selector: HEADLINE_SELECTOR, hasHeadlineData: true }
+            );
           }
         } else {
-          // console.log("No headline available for this location. Debug info:", {
-          //   country: data.country,
-          //   region: data.region,
-          //   stateAbbr: data.stateAbbr,
-          //   hasHeadline: !!data.headline,
-          // });
+          await serverLog("info", "No headline available for location", {
+            country: data.country,
+            region: data.region,
+            stateAbbr: data.stateAbbr,
+            hasHeadline: false,
+          });
         }
 
         // Update avg-homeowner element if available
@@ -39,9 +104,10 @@
           const avgHomeowner = document.querySelector(AVG_HOMEOWNER_SELECTOR);
           if (avgHomeowner) {
             avgHomeowner.outerHTML = `<h1 id="avg-homeowner" class="heading-medium text-wrap-balance">${data.avgHeadline}<sup class="headline-superscript">1</sup></h1>`;
-            // console.log("Updated avg-homeowner with:", data.avgHeadline);
+            await serverLog("info", "Updated avg-homeowner element");
+            elementsUpdated.push("avgHomeowner");
           } else {
-            // console.warn("No element found with selector:", AVG_HOMEOWNER_SELECTOR);
+            await serverLog("warn", "No avg-homeowner element found", { selector: AVG_HOMEOWNER_SELECTOR });
           }
         }
 
@@ -64,20 +130,41 @@
               listItem.innerHTML = `${data.footnote}.<br><br>${existingLegalText}`;
               orderedList.appendChild(listItem);
 
-              // console.log("Updated footnote under single number");
+              await serverLog("info", "Updated footnote with state-specific content");
+              elementsUpdated.push("footnote");
             } else {
-              // console.warn("No ordered list found in footnote element");
+              await serverLog("warn", "No ordered list found in footnote element");
             }
           } else {
-            // console.warn("No element found with selector:", AVG_HOMEOWNER_FOOTNOTE_SELECTOR);
+            await serverLog("warn", "No footnote element found", { selector: AVG_HOMEOWNER_FOOTNOTE_SELECTOR });
           }
         }
+
+        const totalTime = performance.now() - startTime;
+        await serverLog("info", `Page personalization complete in ${totalTime.toFixed(2)}ms`, {
+          elementsUpdated,
+          state: data.stateName || "Default",
+          country: data.country,
+        });
+        
       } catch (error) {
-        // console.error("Error fetching geo data:", error);
+        await serverLog("error", "Error fetching or applying geo data", { error: error.message });
+        await reportError(error, "updateHeadline_error");
       }
     }
 
+    // Global error handler
+    window.addEventListener("error", (event) => {
+      reportError(event.error || event.message, "window_error");
+    });
+
+    // Unhandled promise rejection handler
+    window.addEventListener("unhandledrejection", (event) => {
+      reportError(event.reason, "unhandled_promise_rejection");
+    });
+
     // Run immediately since we're already in DOMContentLoaded
+    serverLog("info", "Starting geo-personalization");
     updateHeadline();
   });
 })();
