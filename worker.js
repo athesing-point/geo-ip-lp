@@ -59,14 +59,23 @@ const STATE_CONTENT = US_STATES.reduce((acc, state) => {
   return acc;
 }, {});
 
+// Add debugging to getStateContent function
 function getStateContent(region) {
   if (!region) {
     return null;
   }
 
   const normalizedRegion = region.trim().toUpperCase();
-  return STATE_CONTENT[normalizedRegion] || null;
-}
+
+//   // Debug: log what we're trying to match
+//   console.log(`[DEBUG] getStateContent:`, {
+//     original: region,
+//     normalized: normalizedRegion,
+//     availableKeys: Object.keys(STATE_CONTENT).filter((key) => key.includes("MASS") || key === "MA"),
+//   });
+
+//   return STATE_CONTENT[normalizedRegion] || null;
+// }
 
 export default {
   async fetch(request, env, ctx) {
