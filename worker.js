@@ -1,31 +1,33 @@
 // List of US states with average amounts
 const US_STATES = [
-  { code: "AZ", name: "Arizona", avgAmount: 85000 },
-  { code: "CA", name: "California", avgAmount: 143500 },
-  { code: "CO", name: "Colorado", avgAmount: 87000 },
-  { code: "CT", name: "Connecticut", avgAmount: 96900 },
-  { code: "DC", name: "District of Columbia", avgAmount: 156700 },
-  { code: "FL", name: "Florida", avgAmount: 87500 },
-  { code: "GA", name: "Georgia", avgAmount: 85500 },
-  { code: "HI", name: "Hawaii", avgAmount: 147400 },
-  { code: "IL", name: "Illinois", avgAmount: 70600 },
-  { code: "IN", name: "Indiana", avgAmount: 54600 },
-  { code: "MD", name: "Maryland", avgAmount: 90700 },
-  { code: "MI", name: "Michigan", avgAmount: 57700 },
-  { code: "MN", name: "Minnesota", avgAmount: 59300 },
-  { code: "MO", name: "Missouri", avgAmount: 47300 },
-  { code: "NC", name: "North Carolina", avgAmount: 69100 },
-  { code: "NJ", name: "New Jersey", avgAmount: 91800 },
-  { code: "NV", name: "Nevada", avgAmount: 89200 },
-  { code: "NY", name: "New York", avgAmount: 102800 },
-  { code: "OH", name: "Ohio", avgAmount: 55100 },
-  { code: "OR", name: "Oregon", avgAmount: 79100 },
-  { code: "PA", name: "Pennsylvania", avgAmount: 60600 },
-  { code: "SC", name: "South Carolina", avgAmount: 93600 },
-  { code: "TN", name: "Tennessee", avgAmount: 75800 },
-  { code: "UT", name: "Utah", avgAmount: 93200 },
-  { code: "VA", name: "Virginia", avgAmount: 83100 },
-  { code: "WA", name: "Washington", avgAmount: 101000 },
+  { code: "AZ", name: "Arizona", avgAmount: 88000 },
+  { code: "CA", name: "California", avgAmount: 145000 },
+  { code: "CO", name: "Colorado", avgAmount: 100000 },
+  { code: "CT", name: "Connecticut", avgAmount: 90000 },
+  { code: "DC", name: "District of Columbia", avgAmount: 139000 },
+  { code: "FL", name: "Florida", avgAmount: 89000 },
+  { code: "GA", name: "Georgia", avgAmount: 74000 },
+  { code: "HI", name: "Hawaii", avgAmount: 152000 },
+  { code: "IL", name: "Illinois", avgAmount: 75000 },
+  { code: "IN", name: "Indiana", avgAmount: 60000 },
+  { code: "MA", name: "Massachusetts", avgAmount: 121000 },
+  { code: "MD", name: "Maryland", avgAmount: 89000 },
+  { code: "MI", name: "Michigan", avgAmount: 65000 },
+  { code: "MN", name: "Minnesota", avgAmount: 67000 },
+  { code: "MO", name: "Missouri", avgAmount: 54000 },
+  { code: "NC", name: "North Carolina", avgAmount: 78000 },
+  { code: "NJ", name: "New Jersey", avgAmount: 97000 },
+  { code: "NV", name: "Nevada", avgAmount: 90000 },
+  { code: "NY", name: "New York", avgAmount: 107000 },
+  { code: "OH", name: "Ohio", avgAmount: 57000 },
+  { code: "OR", name: "Oregon", avgAmount: 85000 },
+  { code: "PA", name: "Pennsylvania", avgAmount: 63000 },
+  { code: "SC", name: "South Carolina", avgAmount: 84000 },
+  { code: "TN", name: "Tennessee", avgAmount: 81000 },
+  { code: "UT", name: "Utah", avgAmount: 104000 },
+  { code: "VA", name: "Virginia", avgAmount: 80000 },
+  { code: "WA", name: "Washington", avgAmount: 104000 },
+  { code: "WI", name: "Wisconsin", avgAmount: 61000 },
 ];
 
 // Template function for headlines
@@ -70,7 +72,7 @@ export default {
   async fetch(request, env, ctx) {
     const startTime = Date.now();
     const requestId = crypto.randomUUID();
-    
+
     // Handle CORS preflight
     if (request.method === "OPTIONS") {
       return new Response(null, {
@@ -100,7 +102,7 @@ export default {
             city: request.cf?.city,
           },
         });
-        
+
         return new Response(JSON.stringify({ success: true }), {
           headers: {
             "Content-Type": "application/json",
@@ -125,7 +127,7 @@ export default {
         const logData = await request.json();
         const logLevel = logData.level || "info";
         const logType = `[CLIENT_${logLevel.toUpperCase()}]`;
-        
+
         console.log(`${logType} ${requestId}`, {
           timestamp: new Date().toISOString(),
           requestId,
@@ -139,7 +141,7 @@ export default {
             city: request.cf?.city,
           },
         });
-        
+
         return new Response(JSON.stringify({ success: true }), {
           headers: {
             "Content-Type": "application/json",
@@ -160,7 +162,7 @@ export default {
 
     // Get geo information from the request
     const cf = request.cf;
-    
+
     // Log incoming request details
     console.log(`[REQUEST] ${requestId}`, {
       timestamp: new Date().toISOString(),

@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "watch:build-client",
+      "type": "shell",
+      "command": "bun",
+      "args": ["build", "/Users/austin/code/point.com/geo-ip-lp/client.js", "--minify", "--outfile", "/Users/austin/code/point.com/geo-ip-lp/dist/client.min.js", "--watch"],
+      "options": {
+        "cwd": "/Users/austin/code/point.com/geo-ip-lp"
+      },
+      "problemMatcher": [],
+      "isBackground": true,
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    }
+  ]
+}
