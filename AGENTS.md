@@ -27,3 +27,13 @@ wrangler tail        # Stream logs from deployed worker
 - Follow Cursor rules in `.cursor/rules/` for workflow, testing, and code quality
 - Use innerHTML for headline updates (content contains HTML tags)
 - Cache responses with `Cache-Control: max-age=3600` (1 hour)
+
+## Subagents
+
+- Security Agent: Specialized agent for security auditing and hardening
+- Accessibility Agent: Specialized agent for accessibility auditing and WCAG compliance
+- CodeRabbit Agent: Specialized agent for automated code reviews using CodeRabbit CLI
+
+## Cursor Rules (.cursor/rules/)
+
+Follow applicable cursor rules and the PLAN→CODE→TESTS→NOTES workflow, strict typing, validate inputs, handle errors, focused diffs, small composable functions.
