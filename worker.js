@@ -1,31 +1,31 @@
 // List of US states with average amounts
 const US_STATES = [
-  { name: "Arizona", avgAmount: 85000 },
-  { name: "California", avgAmount: 143500 },
-  { name: "Colorado", avgAmount: 87000 },
-  { name: "Connecticut", avgAmount: 96900 },
-  { name: "District of Columbia", avgAmount: 156700 },
-  { name: "Florida", avgAmount: 87500 },
-  { name: "Georgia", avgAmount: 85500 },
-  { name: "Hawaii", avgAmount: 147400 },
-  { name: "Illinois", avgAmount: 70600 },
-  { name: "Indiana", avgAmount: 54600 },
-  { name: "Maryland", avgAmount: 90700 },
-  { name: "Michigan", avgAmount: 57700 },
-  { name: "Minnesota", avgAmount: 59300 },
-  { name: "Missouri", avgAmount: 47300 },
-  { name: "North Carolina", avgAmount: 69100 },
-  { name: "New Jersey", avgAmount: 91800 },
-  { name: "Nevada", avgAmount: 89200 },
-  { name: "New York", avgAmount: 102800 },
-  { name: "Ohio", avgAmount: 55100 },
-  { name: "Oregon", avgAmount: 79100 },
-  { name: "Pennsylvania", avgAmount: 60600 },
-  { name: "South Carolina", avgAmount: 93600 },
-  { name: "Tennessee", avgAmount: 75800 },
-  { name: "Utah", avgAmount: 93200 },
-  { name: "Virginia", avgAmount: 83100 },
-  { name: "Washington", avgAmount: 101000 },
+  { code: "AZ", name: "Arizona", avgAmount: 85000 },
+  { code: "CA", name: "California", avgAmount: 143500 },
+  { code: "CO", name: "Colorado", avgAmount: 87000 },
+  { code: "CT", name: "Connecticut", avgAmount: 96900 },
+  { code: "DC", name: "District of Columbia", avgAmount: 156700 },
+  { code: "FL", name: "Florida", avgAmount: 87500 },
+  { code: "GA", name: "Georgia", avgAmount: 85500 },
+  { code: "HI", name: "Hawaii", avgAmount: 147400 },
+  { code: "IL", name: "Illinois", avgAmount: 70600 },
+  { code: "IN", name: "Indiana", avgAmount: 54600 },
+  { code: "MD", name: "Maryland", avgAmount: 90700 },
+  { code: "MI", name: "Michigan", avgAmount: 57700 },
+  { code: "MN", name: "Minnesota", avgAmount: 59300 },
+  { code: "MO", name: "Missouri", avgAmount: 47300 },
+  { code: "NC", name: "North Carolina", avgAmount: 69100 },
+  { code: "NJ", name: "New Jersey", avgAmount: 91800 },
+  { code: "NV", name: "Nevada", avgAmount: 89200 },
+  { code: "NY", name: "New York", avgAmount: 102800 },
+  { code: "OH", name: "Ohio", avgAmount: 55100 },
+  { code: "OR", name: "Oregon", avgAmount: 79100 },
+  { code: "PA", name: "Pennsylvania", avgAmount: 60600 },
+  { code: "SC", name: "South Carolina", avgAmount: 93600 },
+  { code: "TN", name: "Tennessee", avgAmount: 75800 },
+  { code: "UT", name: "Utah", avgAmount: 93200 },
+  { code: "VA", name: "Virginia", avgAmount: 83100 },
+  { code: "WA", name: "Washington", avgAmount: 101000 },
 ];
 
 // Template function for headlines
@@ -42,21 +42,29 @@ function addStateAvgFootnote(state) {
 }
 
 // Generate headlines for all states
-const STATE_HEADLINES = US_STATES.reduce((acc, state) => {
-  acc[state.name] = generateHeadline(state);
+const STATE_CONTENT = US_STATES.reduce((acc, state) => {
+  const content = {
+    code: state.code,
+    name: state.name,
+    headline: generateHeadline(state),
+    avgHeadline: generateStateSocialProofHeadline(state),
+    footnote: addStateAvgFootnote(state),
+  };
+
+  acc[state.code] = content;
+  acc[state.name.toUpperCase()] = content;
+
   return acc;
 }, {});
 
-// Generate avg homeowner headlines for all states
-const STATE_AVG_HEADLINES = US_STATES.reduce((acc, state) => {
-  acc[state.name] = generateStateSocialProofHeadline(state);
-  return acc;
-}, {});
+function getStateContent(region) {
+  if (!region) {
+    return null;
+  }
 
-const STATE_AVG_FOOTNOTES = US_STATES.reduce((acc, state) => {
-  acc[state.name] = addStateAvgFootnote(state);
-  return acc;
-}, {});
+  const normalizedRegion = region.trim().toUpperCase();
+  return STATE_CONTENT[normalizedRegion] || null;
+}
 
 export default {
   async fetch(request) {
@@ -82,17 +90,21 @@ export default {
     //   country: cf?.country,
     // });
 
+    const stateContent = cf?.country === "US" ? getStateContent(cf?.region) : null;
+
     const response = {
-      // Only return a headline if it's a US state
-      headline: cf?.country === "US" && cf?.region ? STATE_HEADLINES[cf.region] || null : null,
-      avgHeadline: cf?.country === "US" && cf?.region ? STATE_AVG_HEADLINES[cf.region] || null : null,
-      footnote: cf?.country === "US" && cf?.region ? STATE_AVG_FOOTNOTES[cf.region] || null : null,
+      headline: stateContent?.headline ?? null,
+      avgHeadline: stateContent?.avgHeadline ?? null,
+      footnote: stateContent?.footnote ?? null,
       country: cf?.country || "Unknown",
       region: cf?.region || "Unknown",
+      stateAbbr: stateContent?.code ?? null,
+      stateName: stateContent?.name ?? null,
       city: cf?.city || "Unknown",
       debug: {
         originalRegion: cf?.region,
-        hasStateHeadline: cf?.region ? !!STATE_HEADLINES[cf.region] : false,
+        matchedStateCode: stateContent?.code ?? null,
+        hasStateHeadline: !!stateContent,
       },
     };
 
