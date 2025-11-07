@@ -31,12 +31,16 @@ const US_STATES = [
 ];
 
 // Template function for headlines
-function generateHeadline(state) {
-  return `Get up to $600k from your <br><span class="headline-underline-decoration">home equity</span> in ${state.name}.`;
+function generateHeadline(state, amount = "600k") {
+  return `Get up to $${amount} from your <br><span class="headline-underline-decoration">home equity</span> in ${state.name}.`;
 }
 
 function generateStateSocialProofHeadline(state) {
   return `Qualified homeowners in ${state.name} get an average of $${state.avgAmount.toLocaleString()} from Point's Home Equity Investment`;
+}
+
+function generateStartUsSocialProofHeadline(state) {
+  return `Homeowners love getting cash from Point's home equity products. In ${state.name}, qualified homeowners get an average of $${state.avgAmount.toLocaleString()}.`;
 }
 
 function addStateAvgFootnote(state) {
@@ -48,6 +52,7 @@ const STATE_CONTENT = US_STATES.reduce((acc, state) => {
   const content = {
     code: state.code,
     name: state.name,
+    avgAmount: state.avgAmount,
     headline: generateHeadline(state),
     avgHeadline: generateStateSocialProofHeadline(state),
     footnote: addStateAvgFootnote(state),
@@ -67,15 +72,15 @@ function getStateContent(region) {
 
   const normalizedRegion = region.trim().toUpperCase();
 
-//   // Debug: log what we're trying to match
-//   console.log(`[DEBUG] getStateContent:`, {
-//     original: region,
-//     normalized: normalizedRegion,
-//     availableKeys: Object.keys(STATE_CONTENT).filter((key) => key.includes("MASS") || key === "MA"),
-//   });
+  // Debug: log what we're trying to match
+  // console.log(`[DEBUG] getStateContent:`, {
+  //   original: region,
+  //   normalized: normalizedRegion,
+  //   availableKeys: Object.keys(STATE_CONTENT).filter((key) => key.includes("MASS") || key === "MA"),
+  // });
 
-//   return STATE_CONTENT[normalizedRegion] || null;
-// }
+  return STATE_CONTENT[normalizedRegion] || null;
+}
 
 export default {
   async fetch(request, env, ctx) {
@@ -193,6 +198,24 @@ export default {
 
     const stateContent = cf?.country === "US" ? getStateContent(cf?.region) : null;
 
+    // Check referer or query parameter to determine if we should use 750k instead of 600k
+    const referer = request.headers.get("referer") || "";
+    const url = new URL(request.url);
+    const pathParam = url.searchParams.get("path");
+    const isStartUs = referer.includes("/start/us") || pathParam?.includes("/start/us");
+
+    // Generate headline with appropriate amount based on path
+    let headline = stateContent?.headline ?? null;
+    if (headline && isStartUs) {
+      headline = headline.replace(/\$600k/g, "$750k").replace(/600k/g, "750k");
+    }
+
+    // Generate social proof headline with variant format for /start/us
+    let avgHeadline = stateContent?.avgHeadline ?? null;
+    if (avgHeadline && isStartUs && stateContent) {
+      avgHeadline = generateStartUsSocialProofHeadline(stateContent);
+    }
+
     // Log state matching results
     console.log(`[STATE_MATCH] ${requestId}`, {
       timestamp: new Date().toISOString(),
@@ -202,13 +225,18 @@ export default {
       matchedState: stateContent?.name ?? "None",
       matchedCode: stateContent?.code ?? "None",
       hasCustomContent: !!stateContent,
+      referer: referer,
+      isStartUs: isStartUs,
       processingTimeMs: Date.now() - startTime,
     });
 
+    // Don't update footnote on /start/us page
+    const footnote = isStartUs ? null : stateContent?.footnote ?? null;
+
     const response = {
-      headline: stateContent?.headline ?? null,
-      avgHeadline: stateContent?.avgHeadline ?? null,
-      footnote: stateContent?.footnote ?? null,
+      headline: headline,
+      avgHeadline: avgHeadline,
+      footnote: footnote,
       country: cf?.country || "Unknown",
       region: cf?.region || "Unknown",
       stateAbbr: stateContent?.code ?? null,
@@ -218,6 +246,7 @@ export default {
         originalRegion: cf?.region,
         matchedStateCode: stateContent?.code ?? null,
         hasStateHeadline: !!stateContent,
+        isStartUs: isStartUs,
       },
     };
 

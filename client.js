@@ -50,11 +50,14 @@
 
     async function updateHeadline() {
       const startTime = performance.now();
-      
+
       try {
         await serverLog("info", "Fetching geo data from worker");
-        const response = await fetch(WORKER_URL);
-        
+        // Pass pathname as query parameter for reliable path detection (fallback if referer is blocked)
+        const pathname = window.location.pathname;
+        const workerUrl = `${WORKER_URL}${pathname ? `?path=${encodeURIComponent(pathname)}` : ""}`;
+        const response = await fetch(workerUrl);
+
         if (!response.ok) {
           const error = new Error(`Network response was not ok: ${response.status}`);
           await serverLog("error", "Fetch failed", { status: response.status });
@@ -64,7 +67,7 @@
 
         const data = await response.json();
         const fetchTime = performance.now() - startTime;
-        
+
         await serverLog("info", "Geo data received", {
           ...data,
           fetchTimeMs: fetchTime.toFixed(2),
@@ -78,17 +81,14 @@
         if (data.headline) {
           const headlines = document.querySelectorAll(HEADLINE_SELECTOR);
           await serverLog("info", `Found ${headlines.length} headline elements`);
-          
+
           if (headlines.length > 0) {
             headlines[0].innerHTML = data.headline; // Use innerHTML since we're receiving HTML content
             await serverLog("info", "Updated headline with state-specific content");
             elementsUpdated.push("headline");
           } else {
             await serverLog("warn", "No headlines found", { selector: HEADLINE_SELECTOR });
-            await reportError(
-              new Error("No headline elements found"),
-              { selector: HEADLINE_SELECTOR, hasHeadlineData: true }
-            );
+            await reportError(new Error("No headline elements found"), { selector: HEADLINE_SELECTOR, hasHeadlineData: true });
           }
         } else {
           await serverLog("info", "No headline available for location", {
@@ -146,7 +146,6 @@
           state: data.stateName || "Default",
           country: data.country,
         });
-        
       } catch (error) {
         await serverLog("error", "Error fetching or applying geo data", { error: error.message });
         await reportError(error, "updateHeadline_error");
