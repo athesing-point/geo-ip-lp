@@ -40,7 +40,7 @@ function generateStateSocialProofHeadline(state) {
 }
 
 function generateStartUsSocialProofHeadline(state) {
-  return `Homeowners love getting cash from Point's home equity products. In ${state.name}, qualified homeowners get an average of $${state.avgAmount.toLocaleString()}.`;
+  return `Homeowners love getting cash from Point's home equity products. In ${state.name}, qualified homeowners average $${state.avgAmount.toLocaleString()}.`;
 }
 
 function addStateAvgFootnote(state) {
