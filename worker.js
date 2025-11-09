@@ -202,7 +202,7 @@ export default {
     const referer = request.headers.get("referer") || "";
     const url = new URL(request.url);
     const pathParam = url.searchParams.get("path");
-    const isStartUs = referer.includes("/start/us") || pathParam?.includes("/start/us");
+    const isStartUs = referer.includes("/start/united-states") || pathParam?.includes("/start/united-states");
 
     // Generate headline with appropriate amount based on path
     let headline = stateContent?.headline ?? null;
@@ -210,7 +210,7 @@ export default {
       headline = headline.replace(/\$600k/g, "$750k").replace(/600k/g, "750k");
     }
 
-    // Generate social proof headline with variant format for /start/us
+    // Generate social proof headline with variant format for /start/united-states
     let avgHeadline = stateContent?.avgHeadline ?? null;
     if (avgHeadline && isStartUs && stateContent) {
       avgHeadline = generateStartUsSocialProofHeadline(stateContent);
@@ -230,7 +230,7 @@ export default {
       processingTimeMs: Date.now() - startTime,
     });
 
-    // Don't update footnote on /start/us page
+    // Don't update footnote on /start/united-states page
     const footnote = isStartUs ? null : stateContent?.footnote ?? null;
 
     const response = {

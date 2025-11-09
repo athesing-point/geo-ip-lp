@@ -103,7 +103,7 @@
         if (data.avgHeadline) {
           const avgHomeowner = document.querySelector(AVG_HOMEOWNER_SELECTOR);
           if (avgHomeowner) {
-            const isStartUs = pathname.includes("/start/us");
+            const isStartUs = pathname.includes("/start/united-states");
             const superscript = isStartUs ? "" : `<sup class="headline-superscript">1</sup>`;
             avgHomeowner.outerHTML = `<h1 id="avg-homeowner" class="heading-medium text-wrap-balance">${data.avgHeadline}${superscript}</h1>`;
             await serverLog("info", "Updated avg-homeowner element");
