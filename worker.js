@@ -203,11 +203,15 @@ export default {
     const url = new URL(request.url);
     const pathParam = url.searchParams.get("path");
     const isStartUs = referer.includes("/start/united-states") || pathParam?.includes("/start/united-states");
+    const isStartUsaHea = referer.includes("/start/usa/hea") || pathParam?.includes("/start/usa/hea");
 
     // Generate headline with appropriate amount based on path
     let headline = stateContent?.headline ?? null;
     if (headline && isStartUs) {
       headline = headline.replace(/\$600k/g, "$750k").replace(/600k/g, "750k");
+    }
+    if (isStartUsaHea) {
+      headline = null;
     }
 
     // Generate social proof headline with variant format for /start/united-states
@@ -227,11 +231,12 @@ export default {
       hasCustomContent: !!stateContent,
       referer: referer,
       isStartUs: isStartUs,
+      isStartUsaHea: isStartUsaHea,
       processingTimeMs: Date.now() - startTime,
     });
 
-    // Don't update footnote on /start/united-states page
-    const footnote = isStartUs ? null : stateContent?.footnote ?? null;
+    // Don't update footnote on /start/united-states or /start/usa/hea pages
+    const footnote = (isStartUs || isStartUsaHea) ? null : stateContent?.footnote ?? null;
 
     const response = {
       headline: headline,
@@ -247,6 +252,7 @@ export default {
         matchedStateCode: stateContent?.code ?? null,
         hasStateHeadline: !!stateContent,
         isStartUs: isStartUs,
+        isStartUsaHea: isStartUsaHea,
       },
     };
 
