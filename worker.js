@@ -10,6 +10,7 @@ const US_STATES = [
   { code: "HI", name: "Hawaii", avgAmount: 152000 },
   { code: "IL", name: "Illinois", avgAmount: 75000 },
   { code: "IN", name: "Indiana", avgAmount: 60000 },
+  { code: "KY", name: "Kentucky" },
   { code: "MA", name: "Massachusetts", avgAmount: 121000 },
   { code: "MD", name: "Maryland", avgAmount: 89000 },
   { code: "MI", name: "Michigan", avgAmount: 65000 },
@@ -60,8 +61,8 @@ const STATE_CONTENT = US_STATES.reduce((acc, state) => {
     name: state.name,
     avgAmount: state.avgAmount,
     headline: generateHeadline(state),
-    avgHeadline: generateStateSocialProofHeadline(state),
-    footnote: addStateAvgFootnote(state),
+    avgHeadline: state.avgAmount ? generateStateSocialProofHeadline(state) : null,
+    footnote: state.avgAmount ? addStateAvgFootnote(state) : null,
   };
 
   acc[state.code] = content;

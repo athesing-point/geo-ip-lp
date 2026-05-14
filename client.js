@@ -99,23 +99,22 @@
           });
         }
 
-        // Update avg-homeowner element if available
-        if (data.avgHeadline) {
-          const avgHomeowner = document.querySelector(AVG_HOMEOWNER_SELECTOR);
-          if (avgHomeowner) {
+        // Update avg-homeowner element if available, hide it if state is not approved
+        const avgHomeowner = document.querySelector(AVG_HOMEOWNER_SELECTOR);
+        if (avgHomeowner) {
+          if (data.avgHeadline) {
             const isStartUs = pathname.includes("/start/united-states");
             const isStartUsaHea = pathname.includes("/start/usa/hea");
-            if (isStartUsaHea) {
-              avgHomeowner.innerHTML = `${data.avgHeadline}<sup class="headline-superscript">1</sup>`;
-            } else {
-              const superscript = isStartUs ? "" : `<sup class="headline-superscript">1</sup>`;
-              avgHomeowner.outerHTML = `<h1 id="avg-homeowner" class="heading-medium text-wrap-balance">${data.avgHeadline}${superscript}</h1>`;
-            }
+            const superscript = isStartUs ? "" : `<sup class="headline-superscript">1</sup>`;
+            avgHomeowner.innerHTML = `${data.avgHeadline}${superscript}`;
             await serverLog("info", "Updated avg-homeowner element");
             elementsUpdated.push("avgHomeowner");
           } else {
-            await serverLog("warn", "No avg-homeowner element found", { selector: AVG_HOMEOWNER_SELECTOR });
+            avgHomeowner.textContent = "Homeowners love getting cash from Point's home equity products.";
+            await serverLog("info", "Set avg-homeowner element to default text (state not approved)");
           }
+        } else {
+          await serverLog("warn", "No avg-homeowner element found", { selector: AVG_HOMEOWNER_SELECTOR });
         }
 
         // Update footnote element if available
