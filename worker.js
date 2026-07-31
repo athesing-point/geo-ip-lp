@@ -36,6 +36,10 @@ function generateHeadline(state, amount = "600k") {
   return `Get up to $${amount} from your <br><span class="headline-underline-decoration">home equity</span> in ${state.name}.`;
 }
 
+function generateAvgPageHeadline(state) {
+  return `Qualified ${state.name} homeowners get $${state.avgAmount.toLocaleString()} on average.`;
+}
+
 function generateStateSocialProofHeadline(state) {
   return `Qualified homeowners in ${state.name} get an average of $${state.avgAmount.toLocaleString()} from Point's Home Equity Investment`;
 }
@@ -61,6 +65,7 @@ const STATE_CONTENT = US_STATES.reduce((acc, state) => {
     name: state.name,
     avgAmount: state.avgAmount,
     headline: generateHeadline(state),
+    avgPageHeadline: state.avgAmount ? generateAvgPageHeadline(state) : null,
     avgHeadline: state.avgAmount ? generateStateSocialProofHeadline(state) : null,
     footnote: state.avgAmount ? addStateAvgFootnote(state) : null,
   };
@@ -216,7 +221,7 @@ export default {
     // Generate headline with appropriate amount based on path
     let headline = stateContent?.headline ?? null;
     if (isAvgPage) {
-      headline = stateContent?.avgHeadline ?? null;
+      headline = stateContent?.avgPageHeadline ?? null;
     } else if (headline && isStartUs) {
       headline = headline.replace(/\$600k/g, "$750k").replace(/600k/g, "750k");
     }
