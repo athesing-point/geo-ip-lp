@@ -37,7 +37,7 @@ function generateHeadline(state, amount = "600k") {
 }
 
 function generateAvgPageHeadline(state) {
-  return `Qualified ${state.name} homeowners get $${state.avgAmount.toLocaleString()} on average.`;
+  return `Qualified ${state.name} homeowners get <span class="headline-underline-decoration">$${state.avgAmount.toLocaleString()}</span> on average.`;
 }
 
 function generateStateSocialProofHeadline(state) {
