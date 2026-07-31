@@ -211,10 +211,13 @@ export default {
     const pathParam = url.searchParams.get("path");
     const isStartUs = referer.includes("/start/united-states") || pathParam?.includes("/start/united-states");
     const isStartUsaHea = referer.includes("/start/usa/hea") || pathParam?.includes("/start/usa/hea");
+    const isAvgPage = referer.includes("/avg") || pathParam?.includes("/avg");
 
     // Generate headline with appropriate amount based on path
     let headline = stateContent?.headline ?? null;
-    if (headline && isStartUs) {
+    if (isAvgPage) {
+      headline = stateContent?.avgHeadline ?? null;
+    } else if (headline && isStartUs) {
       headline = headline.replace(/\$600k/g, "$750k").replace(/600k/g, "750k");
     }
     if (isStartUsaHea) {
@@ -239,6 +242,7 @@ export default {
       referer: referer,
       isStartUs: isStartUs,
       isStartUsaHea: isStartUsaHea,
+      isAvgPage: isAvgPage,
       processingTimeMs: Date.now() - startTime,
     });
 
@@ -260,6 +264,7 @@ export default {
         hasStateHeadline: !!stateContent,
         isStartUs: isStartUs,
         isStartUsaHea: isStartUsaHea,
+        isAvgPage: isAvgPage,
       },
     };
 
